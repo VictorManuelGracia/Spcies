@@ -8,7 +8,7 @@
 % 
 % @solvers_options: Structure containing options for both Spcies and Yalmip solvers
 
-function [correct, result] = sp_test_MPCT(solvers_options)
+function [correct, results] = sp_test_MPCT(solvers_options)
 
     % Create the system in which the solvers are tested
     p = 3; % Number of objects
