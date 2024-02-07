@@ -93,14 +93,12 @@ function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,extern
         result.error = 'Maximum gap exceeded';
     end
 
-
+    % Return correct
     if (result.error == "")
         correct = true;
     else
         correct = false;
     end
-
-    % result = correct; %TODO: Need to change this, just provisional
 
 end
 

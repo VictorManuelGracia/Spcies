@@ -82,9 +82,27 @@ function [correct, results] = sp_test_MPCT(solvers_options)
     external_sol.xs = sol{1,3};
     external_sol.us = sol{1,4};
 
-    % Call the specific formulation/method/submethod Spcies solver
-    [correct(1), results(1)] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
-    % [correct(2), results(2)] = sp_test_MPCT_ADMM_cs(x0,xr,ur,external_sol,options);
+    % Call the specific method/submethod in Spcies to solve MPCT
+    switch solvers_options.method
+        case "ADMM"
+            switch solvers_options.submethod
+                case ""
+                    [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
+                    % [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+                case "semiband"
+                    [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
+                case "cs"
+                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+            end
+        case "EADMM"
+            [correct.EADMM,results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+        case ""
+            [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
+            % [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+            % [correct.EADMM,results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+        otherwise
+            error('Unrecognized method or not supported')
+    end
     
 end
 
