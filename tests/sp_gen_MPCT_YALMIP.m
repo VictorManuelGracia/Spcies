@@ -18,6 +18,7 @@ function external_MPCT_solver = sp_gen_MPCT_YALMIP(sys, param, opt, solver_name)
     % Get system parameters
     n = size(sys.A,1);
     m = size(sys.B,2);
+    p = size(sys.C,1);
 
     % Get MPCT parameters
     N = param.N;
@@ -45,6 +46,7 @@ function external_MPCT_solver = sp_gen_MPCT_YALMIP(sys, param, opt, solver_name)
         constraints = [constraints , x{k+1} == sys.A*x{k} + sys.B*u{k}];
         constraints = [constraints , sys.LBx <= x{k+1} <= sys.UBx];
         constraints = [constraints , sys.LBu <= u{k} <= sys.UBu];
+        constraints = [constraints , sys.LBy <= sys.C*x{k}+sys.D*u{k} <= sys.UBy];
     end
 
     constraints = [constraints , sys.LBu <= u{N} <= sys.UBu];
@@ -55,10 +57,11 @@ function external_MPCT_solver = sp_gen_MPCT_YALMIP(sys, param, opt, solver_name)
 
     constraints = [constraints , (sys.LBx+1e-6*ones(n,1)) <= xs <= (sys.UBx-1e-6*ones(n,1))]; % Smaller constraint for xs
     constraints = [constraints , (sys.LBu+1e-6*ones(m,1)) <= us <= (sys.UBu-1e-6*ones(m,1))]; % Smaller constraint for us
+    constraints = [constraints , (sys.LBy+1e-6*ones(p,1)) <= sys.C*xs+sys.D*us <= (sys.UBy-1e-6*ones(p,1))]; % Smaller constraint for us
 
     %% Solver options
     if solver_name == 'osqp'
-        yalmip_options = sdpsettings('solver' , solver_name ,'verbose',2);
+        yalmip_options = sdpsettings('solver' , solver_name ,'savesolveroutput' , 1 ,'verbose', 0);
         yalmip_options.osqp.eps_abs = opt.tol;
         yalmip_options.osqp.eps_rel = opt.tol;
         yalmip_options.osqp.eps_prim_inf = opt.tol;

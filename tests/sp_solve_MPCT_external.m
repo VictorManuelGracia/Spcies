@@ -14,11 +14,11 @@
 % @e_flag: Its value is set to '0' if the problem has been solved
 % successfully, '1' otherwise
 
-function [sol, ok] = sp_solve_MPCT_external(sys,param,x0,xr,ur,external_opt)
+function [sol, ok, info] = sp_solve_MPCT_external(sys,param,x0,xr,ur,external_opt)
 
     controller = sp_gen_MPCT_YALMIP(sys,param,external_opt,'osqp');
 
-    [sol,e_flag] = controller(x0,xr,ur);
+    [sol,e_flag,~,~,~,info] = controller(x0,xr,ur);
 
     ok = true;
 
