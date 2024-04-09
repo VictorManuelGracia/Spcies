@@ -49,7 +49,7 @@ function [correct,results] = spcies_test(varargin)
 
     switch par.Results.formulation
         case "MPCT"
-            [correct.MPCT,results.MPCT] = sp_test_MPCT(solvers_options);            
+            [correct.MPCT,results.MPCT] = sp_test_MPCT(solvers_options);
         case ""
             [correct.MPCT,results.MPCT] = sp_test_MPCT(solvers_options);
             % Add here the rest of formulations when available

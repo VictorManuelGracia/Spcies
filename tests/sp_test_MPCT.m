@@ -32,7 +32,7 @@ function [correct, results] = sp_test_MPCT(solvers_options)
     UBu = [0.8; 0.8]; % Upper bound for the input
 
     % Create sys structure
-    sys = struct('A', sysD.A, 'B', sysD.B, 'LBx', LBx, 'UBx', UBx, 'LBu', LBu, 'UBu', UBu);
+    sys = struct('A', sysD.A, 'B', sysD.B, 'C', sysD.C, 'LBx', LBx, 'UBx', UBx, 'LBu', LBu, 'UBu', UBu);
     
     % Cost function matrices
     Q = 10*ones(n,n) + diag(ones(n,1));
@@ -88,17 +88,17 @@ function [correct, results] = sp_test_MPCT(solvers_options)
             switch solvers_options.submethod
                 case ""
                     [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
-                    % [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
                 case "semiband"
                     [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
                 case "cs"
-                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options);
             end
         case "EADMM"
             [correct.EADMM,results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
         case ""
             [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
-            % [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+            [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options);
             % [correct.EADMM,results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
         otherwise
             error('Unrecognized method or not supported')

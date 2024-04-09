@@ -1,8 +1,9 @@
-%% sp_test_MPCT_ADMM_semiband
-% 
-% This function generates the Spcies solver for MPCT using ADMM_semiband
-% and compares the solution given by the external solver with the solution
-% obtained by Spcies
+%% sp_test_MPCT_ADMM_cs
+
+% This function generates the Spcies solver for MPCT using the "ADMM" method
+% along with the "cs" submethod. After solving the optimization 
+% problem obtained from its application to a specific case, the solution 
+% given by Spcies is compared to the solution provided by the external solver.
 % 
 % @correct: '1' if the MPCT_ADMM_semiband test passed, '0' otherwise
 % @result: Structure containing the result of the MPCT_ADMM_semiband test
@@ -10,8 +11,8 @@
 %   - method
 %   - submethod
 %   - gap -> Measures used to determine that the solution is correct. Check: gap{i} <= max_gap
-%   - error -> String that indicates the type of error. ='' if there is no error.
-%   - sol -> Solution obtained from solver (sol.x = [x0, x1], sol.u, etc.)
+%   - error -> String that indicates the type of error. If there is no error, '' is returned.
+%   - sol -> Solution obtained from solver (sol.x = [x_0, x_1, ..., x_{N-1}], sol.u = [u_0, u_1, ..., u_{N-1}], etc.)
 %   - sol_external -> Solution obtained with the external solver
 %   - opt -> To reproduce test
 %   - version -> Tag of Spcies version used when the test was run
@@ -24,7 +25,7 @@
 % @external_sol: Solution obtained by the external solver (yalmip using osqp)
 % @sp_opt: Options for Spcies solver
 
-function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,sp_opt)
+function [correct,result] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,sp_opt)
 
     % Get n, m and N
     n = size(xr,1);
@@ -34,7 +35,7 @@ function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,extern
     % Spcies options
     sp_opt.tol = sp_opt.tol;
     sp_opt.debug = true;
-    sp_opt.save_name = 'MPCT_ADMM_semiband_solver';
+    sp_opt.save_name = 'MPCT_ADMM_cs_solver';
     sp_opt.directory = '';
     sp_opt.time = false;
     sp_opt.rho = 0.1;
@@ -43,38 +44,35 @@ function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,extern
     % Fill the result structure
     result.formulation = 'MPCT';
     result.method = 'ADMM';
-    result.submethod = 'semiband';
+    result.submethod = 'cs';
     result.error = ''; % This value changes if there is any error along the test
     result.version = '';
     result.opt = '';
     result.sol_external = external_sol;
 
-    %% Spcies solver
+     %% Spcies solver
 
     spcies('clear');
         
     % Generate the Spcies solver
     spcies('gen','sys', sys, 'param', param, 'options', sp_opt, ...
-         'platform', 'Matlab', 'formulation', 'MPCT', 'method','ADMM','submethod','semiband');
+         'platform', 'Matlab', 'formulation', 'MPCT', 'method','ADMM','submethod','cs');
 
-    [~, hK, ~, info] = MPCT_ADMM_semiband_solver(x0, xr, ur); % Take the optimal solution from "info" structure
+    [~, hK, ~, info] = MPCT_ADMM_cs_solver(x0, xr, ur); % Take the optimal solution from "info" structure
 
-    % Group the solutions Spcies solver in the same format as the one in the external solver
-    
-    l = 0;
-    
-    for k = 1:n+m:N*(n+m)
-    
-        l = l+1;
-        result.sol.x(:,l) = info.z(k:k+n-1);
-        result.sol.u(:,l) = info.z(k+n:k+n+m-1);
-    
-    end
-    
-    result.sol.xs = info.z(N*(n+m)+1:N*(n+m)+n);
-    result.sol.us = info.z(N*(n+m)+n+1:(N+1)*(n+m));
-    
-    % Compare solution vectors
+   % Group the solution of the Spcies solver in the same format as the one in the external solver
+
+   for i = 1 : N
+
+       result.sol.x(:,i) = info.z(2*(i-1)*(n+m)+1:2*(i-1)*(n+m)+n,1);
+       result.sol.u(:,i) = info.z(2*(i-1)*(n+m)+2*n+1:2*(i-1)*(n+m)+2*n+m,1);
+
+   end
+
+   result.sol.xs = info.z(n+1:2*n,1);
+   result.sol.us = info.z(2*n+m+1:2*(n+m));
+
+   % Compare solution vectors
     for l = 1 : N
 
         result.gap_x(l,1) = norm(result.sol.x(:,l)-external_sol.x(:,l),'Inf');
