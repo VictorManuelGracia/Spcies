@@ -88,7 +88,7 @@ function [correct, results] = sp_test_MPCT(solvers_options)
             switch solvers_options.submethod
                 case ""
                     [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
-                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+                    [correct.cs,results.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options);
                 case "semiband"
                     [correct.semiband, results.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
                 case "cs"

@@ -41,6 +41,8 @@ function [correct,results] = spcies_test(varargin)
 
     % Rename
     solvers_options.tol = par.Results.tol;
+    solvers_options.tol_p = par.Results.tol;
+    solvers_options.tol_d = par.Results.tol;
     solvers_options.max_gap = par.Results.max_gap;
     solvers_options.verbose = par.Results.verbose;
     solvers_options.stop_on_error = par.Results.stop_on_error;
