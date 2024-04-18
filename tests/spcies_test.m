@@ -58,6 +58,21 @@ function [correct,results] = spcies_test(varargin)
         otherwise
             error('Unrecognized formulation or not supported')
     end
-    
+
+    switch par.Results.verbose
+        case 1
+            fprintf("Results: \n")
+            cell_formulation_names = fieldnames(correct);
+            fprintf("%s:\n",cell_formulation_names{1})
+            cell_submethod_names = fieldnames(correct.MPCT);
+            % TODO: Automatizar estas líneas siguientes para no tener que
+            % poner el nombre de semiband o cs en correct.MPCT. ...
+            fprintf("%s: %d\n",cell_submethod_names{1},correct.MPCT.semiband)
+            fprintf("%s: %d\n",cell_submethod_names{2},correct.MPCT.cs)
+        case 2
+        
+        otherwise
+
+    end
 
 end
