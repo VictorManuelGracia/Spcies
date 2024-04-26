@@ -224,7 +224,7 @@ function [vars] = compute_MPCT_ADMM_semiband_ingredients(controller, opt)
         M_tilde = M_tilde_full;
     end
     
-    % Verification: W = G*inv(H)*G' = Gamma_tilde + U_tilde_full * V_tilde
+    % Verification: W = G*inv(H+rho*eye(n_z))*G' = Gamma_tilde + U_tilde_full * V_tilde
 
     %% Compute upper and lower bounds
     LB = [LBx ; LBu];
