@@ -61,14 +61,31 @@ function [correct,results] = spcies_test(varargin)
 
     switch par.Results.verbose
         case 1
-            fprintf("Results: \n")
+            fprintf("Results:\n")
             cell_formulation_names = fieldnames(correct);
-            fprintf("%s:\n",cell_formulation_names{1})
-            cell_submethod_names = fieldnames(correct.MPCT);
-            % TODO: Automatizar estas líneas siguientes para no tener que
-            % poner el nombre de semiband o cs en correct.MPCT. ...
-            fprintf("%s: %d\n",cell_submethod_names{1},correct.MPCT.semiband)
-            fprintf("%s: %d\n",cell_submethod_names{2},correct.MPCT.cs)
+            
+            for i = 1:length(cell_formulation_names)
+
+                cell_method_names = fieldnames(correct.(cell_formulation_names{i}));
+
+                fprintf("\n   * %s: \n",cell_formulation_names{i});
+
+                for j = 1:length(cell_method_names)
+
+                    fprintf("\n     > %s: \n\n",cell_method_names{j});
+
+                    cell_submethod_names = fieldnames(correct.(cell_formulation_names{i}).(cell_method_names{j}));
+
+                    for k = 1:length(cell_submethod_names)
+    
+                        fprintf("       - %s: %d\n",cell_submethod_names{k},correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}));
+    
+                    end
+
+                end
+
+            end
+
         case 2
         
         otherwise
