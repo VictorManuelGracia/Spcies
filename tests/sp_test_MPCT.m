@@ -95,11 +95,11 @@ function [correct, results] = sp_test_MPCT(solvers_options)
                     [correct.ADMM.cs, results.ADMM.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options);
             end
         case "EADMM"
-            [correct.EADMM, results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+            [correct.EADMM, results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options);
         case ""
             [correct.ADMM.semiband, results.ADMM.semiband] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,solvers_options);
             [correct.ADMM.cs, results.ADMM.cs] = sp_test_MPCT_ADMM_cs(sys,param,x0,xr,ur,external_sol,solvers_options);
-            % [correct.EADMM,results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options); % Not designed yet
+            [correct.EADMM, results.EADMM] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,solvers_options);
         otherwise
             error('Unrecognized method or not supported')
     end

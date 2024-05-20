@@ -1,11 +1,11 @@
-%% sp_test_MPCT_ADMM_semiband
+%% sp_test_MPCT_EADMM
 % 
-% This function generates the Spcies solver for MPCT using ADMM_semiband
+% This function generates the Spcies solver for MPCT using EADMM
 % and compares the solution given by the external solver with the solution
 % obtained by Spcies
 % 
-% @correct: '1' if the MPCT_ADMM_semiband test passed, '0' otherwise
-% @result: Structure containing the result of the MPCT_ADMM_semiband test
+% @correct: '1' if the MPCT_EADMM test passed, '0' otherwise
+% @result: Structure containing the result of the MPCT_EADMM test
 %   - formulation
 %   - method
 %   - submethod
@@ -24,7 +24,7 @@
 % @external_sol: Solution obtained by the external solver (yalmip using osqp)
 % @sp_opt: Options for Spcies solver
 
-function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,external_sol,sp_opt)
+function [correct,result] = sp_test_MPCT_EADMM(sys,param,x0,xr,ur,external_sol,sp_opt)
 
     % Get n, m and N
     n = size(xr,1);
@@ -34,16 +34,16 @@ function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,extern
     % Spcies options
     sp_opt.tol = sp_opt.tol;
     sp_opt.debug = true;
-    sp_opt.save_name = 'MPCT_ADMM_semiband_solver';
+    sp_opt.save_name = 'MPCT_EADMM_solver';
     sp_opt.directory = '';
     sp_opt.time = false;
-    sp_opt.rho = 0.1;
+    sp_opt.rho = 57;
     sp_opt.k_max = 3000;
 
     % Fill the result structure
     result.formulation = 'MPCT';
-    result.method = 'ADMM';
-    result.submethod = 'semiband';
+    result.method = 'EADMM';
+    % result.submethod = '';
     result.error = ''; % This value changes if there is any error along the test
     result.version = '';
     result.opt = '';
@@ -55,25 +55,25 @@ function [correct,result] = sp_test_MPCT_ADMM_semiband(sys,param,x0,xr,ur,extern
         
     % Generate the Spcies solver
     spcies('gen','sys', sys, 'param', param, 'options', sp_opt, ...
-         'platform', 'Matlab', 'formulation', 'MPCT', 'method','ADMM','submethod','semiband');
+         'platform', 'Matlab', 'formulation', 'MPCT', 'method','EADMM');
 
-    [~, hK, ~, info] = MPCT_ADMM_semiband_solver(x0, xr, ur); % Take the optimal solution from "info" structure
+    [~, hK, ~, info] = MPCT_EADMM_solver(x0, xr, ur); % Take the optimal solution from "info" structure
 
     % Group the solutions from the Spcies solver in the same format as the one in the external solver
     
     l = 0;
-    
+
     for k = 1:n+m:N*(n+m)
-    
+
         l = l+1;
-        result.sol.x(:,l) = info.z(k:k+n-1);
-        result.sol.u(:,l) = info.z(k+n:k+n+m-1);
-    
+        result.sol.x(:,l) = info.z1(k:k+n-1);
+        result.sol.u(:,l) = info.z1(k+n:k+n+m-1);
+
     end
-    
-    result.sol.xs = info.z(N*(n+m)+1:N*(n+m)+n);
-    result.sol.us = info.z(N*(n+m)+n+1:(N+1)*(n+m));
-    
+
+    result.sol.xs = info.z2(1:n);
+    result.sol.us = info.z2(n+1:n+m);
+
     % Compare solution vectors
     for l = 1 : N
 

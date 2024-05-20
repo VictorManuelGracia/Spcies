@@ -10,7 +10,7 @@
 function [correct,results] = spcies_test(varargin)
 
     % Default options values
-    def_tol = 1e-8;
+    def_tol = 1e-9;
     def_max_gap = 1e-6;
     def_verbose = 1;
     def_stop_on_error = false;
@@ -72,14 +72,22 @@ function [correct,results] = spcies_test(varargin)
 
                 for j = 1:length(cell_method_names)
 
-                    fprintf("\n     > %s: \n\n",cell_method_names{j});
+                    if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
 
-                    cell_submethod_names = fieldnames(correct.(cell_formulation_names{i}).(cell_method_names{j}));
+                        fprintf("\n     > %s: \n\n",cell_method_names{j});
 
-                    for k = 1:length(cell_submethod_names)
+                        cell_submethod_names = fieldnames(correct.(cell_formulation_names{i}).(cell_method_names{j}));
     
-                        fprintf("       - %s: %d\n",cell_submethod_names{k},correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}));
-    
+                        for k = 1:length(cell_submethod_names)
+        
+                            fprintf("       - %s: %d\n",cell_submethod_names{k},correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}));
+        
+                        end
+
+                    else
+
+                        fprintf("\n     > %s: %d\n\n",cell_method_names{j}, correct.(cell_formulation_names{i}).(cell_method_names{j}));
+
                     end
 
                 end
