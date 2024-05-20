@@ -54,50 +54,149 @@ function [correct,results] = spcies_test(varargin)
             [correct.MPCT,results.MPCT] = sp_test_MPCT(solvers_options);
         case ""
             [correct.MPCT,results.MPCT] = sp_test_MPCT(solvers_options);
-            % Add here the rest of formulations when available
+            % TODO: Add here the rest of formulations when available
         otherwise
             error('Unrecognized formulation or not supported')
     end
 
-    switch par.Results.verbose
-        case 1
-            fprintf("Results:\n")
-            cell_formulation_names = fieldnames(correct);
+    fprintf("Tests results:\n");
+
+    correct_tests = true; % Sets to false if any test fails
+
+    cell_formulation_names = fieldnames(correct);
             
-            for i = 1:length(cell_formulation_names)
+    for i = 1:length(cell_formulation_names)
 
-                cell_method_names = fieldnames(correct.(cell_formulation_names{i}));
+        cell_method_names = fieldnames(correct.(cell_formulation_names{i}));
 
-                fprintf("\n   * %s: \n",cell_formulation_names{i});
+        for j = 1:length(cell_method_names)
 
-                for j = 1:length(cell_method_names)
+            if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
 
-                    if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
+                cell_submethod_names = fieldnames(correct.(cell_formulation_names{i}).(cell_method_names{j}));
+                
+                for k = 1:length(cell_submethod_names)
 
-                        fprintf("\n     > %s: \n\n",cell_method_names{j});
+                    if correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}) == false
 
-                        cell_submethod_names = fieldnames(correct.(cell_formulation_names{i}).(cell_method_names{j}));
-    
-                        for k = 1:length(cell_submethod_names)
-        
-                            fprintf("       - %s: %d\n",cell_submethod_names{k},correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}));
-        
-                        end
-
-                    else
-
-                        fprintf("\n     > %s: %d\n\n",cell_method_names{j}, correct.(cell_formulation_names{i}).(cell_method_names{j}));
+                        correct_tests = false;
 
                     end
 
                 end
 
+            else
+
+                if correct.(cell_formulation_names{i}).(cell_method_names{j}) == false
+
+                    correct_tests = false;
+
+                end
+
             end
 
-        case 2
-        
-        otherwise
+        end
 
     end
+
+    for i = 0:par.Results.verbose
+
+        switch i
+    
+            case 0
+                
+                disp("============================================")
+
+                if correct_tests == true
+                    fprintf("Tests passed successfully\n");
+                else
+                    fprintf("Tests failed\n");
+                end
+
+                disp("============================================")
+                
+            case 1
+                
+                for i = 1:length(cell_formulation_names)
+    
+                    fprintf("* %s: \n",cell_formulation_names{i});
+    
+                    for j = 1:length(cell_method_names)
+    
+                        if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
+    
+                            fprintf("\n  > %s: \n\n",cell_method_names{j});
+        
+                            for k = 1:length(cell_submethod_names)
+
+                                if correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k})
+
+                                    passed = "passed";
+
+                                else
+
+                                    passed = "failed";
+
+                                end
+            
+                                fprintf("    - %s: %s\n",cell_submethod_names{k},passed);
+            
+                            end
+    
+                        else
+
+                            if correct.(cell_formulation_names{i}).(cell_method_names{j})
+                                passed = "passed";
+                            else
+                                passed = "failed";
+                            end
+    
+                            fprintf("\n  > %s: %s\n\n",cell_method_names{j},passed);
+    
+                        end
+    
+                    end
+    
+                end
+
+                disp("============================================")
+    
+            case 2 % TODO: Select properly the data we want to show in this level of verbose
+                
+                fprintf("Details: \n\n");
+                
+                for i = 1:length(cell_formulation_names)
+
+                    for j = 1:length(cell_method_names)
+
+                        if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
+
+                            for k = 1:length(cell_submethod_names)
+    
+                                fprintf("%s/%s/%s:\n",cell_formulation_names{i},cell_method_names{j},cell_submethod_names{k});
+
+                                disp(results.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k}))
+    
+                            end
+
+                        else
+
+                            fprintf("%s/%s:\n",cell_formulation_names{i},cell_method_names{j});
+
+                            disp(results.(cell_formulation_names{i}).(cell_method_names{j}))
+
+                        end
+
+                    end
+
+                end
+
+            disp("============================================")
+        
+        end
+
+    end
+
+
 
 end
