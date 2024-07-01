@@ -116,17 +116,34 @@ function [correct,results] = spcies_test(varargin)
                 disp("============================================")
                 
             case 1
+
+                counter = 0; % Counts how many submethods passed the test
                 
                 for i = 1:length(cell_formulation_names)
     
-                    fprintf("* %s: \n",cell_formulation_names{i});
+                    fprintf("* %s: \n\n",cell_formulation_names{i});
     
                     for j = 1:length(cell_method_names)
     
                         if isstruct(correct.(cell_formulation_names{i}).(cell_method_names{j}))
     
-                            fprintf("\n  > %s: \n\n",cell_method_names{j});
-        
+                            fprintf("  > %s: ",cell_method_names{j});
+
+                            for k = 1:length(cell_submethod_names)
+
+                                counter = counter + correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k});
+                                
+                            end
+
+                            if counter == length(cell_submethod_names)
+
+                                fprintf("%s\n","passed");
+
+                            else
+                                fprintf("%s\n","failed");
+
+                            end
+
                             for k = 1:length(cell_submethod_names)
 
                                 if correct.(cell_formulation_names{i}).(cell_method_names{j}).(cell_submethod_names{k})
@@ -139,7 +156,7 @@ function [correct,results] = spcies_test(varargin)
 
                                 end
             
-                                fprintf("    - %s: %s\n",cell_submethod_names{k},passed);
+                                fprintf("\n    - %s: %s\n",cell_submethod_names{k},passed);
             
                             end
     
@@ -151,7 +168,7 @@ function [correct,results] = spcies_test(varargin)
                                 passed = "failed";
                             end
     
-                            fprintf("\n  > %s: %s\n\n",cell_method_names{j},passed);
+                            fprintf("\n  > %s: %s\n",cell_method_names{j},passed);
     
                         end
     
