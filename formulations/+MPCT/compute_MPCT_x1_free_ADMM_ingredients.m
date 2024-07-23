@@ -70,7 +70,7 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     end
 
     %% Dimension of the problem
-    n_z=(N+2)*n+(N+1)*m; % Number of decision variables
+    n_z = (N+2)*n+(N+1)*m; % Number of decision variables
     m_z = (N+2)*n; % Number of equality constraints
 
     %% Turn rho into a vector
@@ -90,16 +90,16 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     beta = opt.solver.beta;
     
     %% Compute the Hessian
-    Gamma_hat = blkdiag(Q,R,zeros(n,n));
+    Gamma_hat = blkdiag(Q,R,Q);
     for i = 2:N
         Gamma_hat = blkdiag(Gamma_hat,blkdiag(Q,R));
     end
-    Gamma_hat = blkdiag(Gamma_hat,blkdiag(N*Q+T,N*R+S));
+    Gamma_hat = blkdiag(Gamma_hat,blkdiag((N+1)*Q+T,N*R+S));
     Gamma_hat = Gamma_hat + rho*eye(size(Gamma_hat,1)); % Band of the Hessian of the problem of z^{k+1} constructed
 
     Gamma_hat_inv = inv(Gamma_hat);
     
-    Y = [-blkdiag(Q,R), zeros(n+m,n), kron(-ones(1,N-1),blkdiag(Q,R))];
+    Y = [-blkdiag(Q,R), [-Q ; zeros(m,n)], kron(-ones(1,N-1),blkdiag(Q,R))];
     
     U_hat = [Y', zeros(size(Y,2),n+m) ; zeros(n+m,n+m), eye(n+m)];
     
@@ -133,7 +133,22 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     % Computation of M_hat = inv(I+V_hat*inv(Gamma_hat)*U_hat)*V_hat (step 2 of algorithm for semi-banded linear systems)
     M_hat = inv(eye(size(V_hat,1),size(U_hat,2))+V_hat*Gamma_hat_inv*U_hat)*V_hat;
 
-    M_tilde = inv(eye(size(V_tilde,1),size(U_tilde,2))+V_tilde*inv(Gamma_tilde)*U_tilde)*V_tilde;
+    % For C, we only save once the repeated part of the matrix
+    M_hat_x1 = [M_hat(1:n,1:n) ; M_hat(n+m+1:2*n+m,1:n)];
+    M_hat_x2 = [M_hat(1:n,N*(n+m)+n+1:N*(n+m)+2*n) ; M_hat(n+m+1:2*n+m,N*(n+m)+n+1:N*(n+m)+2*n)];
+
+    M_hat_u1 = [M_hat(n+1:n+m,n+1:n+m) ; M_hat(2*n+m+1:2*(n+m),n+1:n+m)];
+    M_hat_u2 = [M_hat(n+1:n+m,N*(n+m)+2*n+1:(N+1)*(n+m)+n) ; M_hat(2*n+m+1:2*(n+m),N*(n+m)+2*n+1:(N+1)*(n+m)+n)];
+
+    M_tilde_full = inv(eye(size(V_tilde,1),size(U_tilde,2))+V_tilde*inv(Gamma_tilde)*U_tilde)*V_tilde;
+
+    % Only for C version of the solver. In Matlab, we use M_tilde_full
+    if vars.rho_is_scalar
+        M_tilde = [M_tilde_full(:,1:3*n), M_tilde_full(:,N*n+1:(N+2)*n)]; % For C, we only save once the repeated part of the matrix
+    else
+        M_tilde = M_tilde_full;
+    end
+
     
     %% Compute upper and lower bounds
     LB = [LBx;LBu]; % Lower bounds for predicted states and inputs
@@ -156,6 +171,11 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     vars.Gamma_tilde = Gamma_tilde; % Only needed for solver in Matlab. In C, Alpha's and Beta's are used
     vars.U_tilde = U_tilde;
     vars.M_hat = M_hat;
+    vars.M_hat_x1 = M_hat_x1;
+    vars.M_hat_x2 = M_hat_x2;
+    vars.M_hat_u1 = M_hat_u1;
+    vars.M_hat_u2 = M_hat_u2;
+    vars.M_tilde_full = M_tilde_full;
     vars.M_tilde = M_tilde;
     vars.LB = LB;
     vars.UB = UB;
@@ -166,7 +186,7 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
         vars.Q_rho_i = inv(Q + rho*diag(ones(n,1)));
         vars.R_rho_i = inv(R + rho*diag(ones(m,1)));
         vars.S_rho_i = inv(N*R + S + rho*diag(ones(m,1)));
-        vars.T_rho_i = inv(N*Q + T + rho*diag(ones(n,1)));
+        vars.T_rho_i = inv((N+1)*Q + T + rho*diag(ones(n,1)));
         vars.alpha_rho_i = alpha/(2*rho);
         vars.beta_rho_i = beta/(2*rho);
     else

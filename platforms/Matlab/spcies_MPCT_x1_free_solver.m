@@ -196,7 +196,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         if isscalar(var.rho)
             z1_a(1:n,1) = var.Q_rho_i*p(1:n);
             z1_a(n+1:n+m,1) = var.R_rho_i*p(n+1:n+m);
-            z1_a(n+m+1:n+m+n) = var.rho_i*p(n+m+1:n+m+n);
+            z1_a(n+m+1:n+m+n) = var.Q_rho_i*p(n+m+1:n+m+n);
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z1_a(i:i+n-1,1) = var.Q_rho_i*p(i:i+n-1);
             end
@@ -206,7 +206,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         else
             z1_a(1:n,1) = var.Q_rho_i(:,:,1)*p(1:n);
             z1_a(n+1:n+m,1) = var.R_rho_i(:,:,1)*p(n+1:n+m);
-            z1_a(n+m+1:n+m+n) = var.rho_i(n+m+1:n+m+n,1).*p(n+m+1:n+m+n); % OK
+            z1_a(n+m+1:n+m+n) = var.Q_rho_i(:,:,2)*p(n+m+1:n+m+n); % OK
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z1_a(i:i+n-1,1) = var.Q_rho_i(:,:,(i-n-1)/(n+m)+1)*p(i:i+n-1);
             end
@@ -228,7 +228,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         if isscalar(var.rho)
             z3_a(1:n,1) = var.Q_rho_i*vec(1:n);
             z3_a(n+1:n+m,1) = var.R_rho_i*vec(n+1:n+m);
-            z3_a(n+m+1:n+m+n) = var.rho_i*vec(n+m+1:n+m+n);
+            z3_a(n+m+1:n+m+n) = var.Q_rho_i*vec(n+m+1:n+m+n);
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z3_a(i:i+n-1,1) = var.Q_rho_i*vec(i:i+n-1);
             end
@@ -238,7 +238,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         else
             z3_a(1:n,1) = var.Q_rho_i(:,:,1)*vec(1:n);
             z3_a(n+1:n+m,1) = var.R_rho_i(:,:,1)*vec(n+1:n+m);
-            z3_a(n+m+1:n+m+n) = diag(var.rho_i(n+m+1:n+m+n,1))*vec(n+m+1:n+m+n); % OK
+            z3_a(n+m+1:n+m+n) = var.Q_rho_i(:,:,2)*vec(n+m+1:n+m+n); % OK
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z3_a(i:i+n-1,1) = var.Q_rho_i(:,:,(i-n-1)/(n+m)+1)*vec(i:i+n-1);
             end
@@ -259,7 +259,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         z1_b = var.Gamma_tilde\-(var.G*xi+beq); % In C, -(var.G*xi+beq) is computed online and then we use solve_banded_chol()
 
         % Obtaining z2_b = (eye(2*(n+m))+var.V_tilde*var.Gamma_tilde_inv*var.U_tilde_full)\(var.V_tilde*z1_b);
-        z2_b = var.M_tilde * z1_b;
+        z2_b = var.M_tilde_full * z1_b;
 
         % Obtaining z3_b
         z3_b = var.Gamma_tilde\(var.U_tilde*z2_b); % In C, (var.U_tilde*z2_b) is computed online and then we use solve_banded_chol()
@@ -276,7 +276,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         if isscalar(var.rho)
             z1_c(1:n,1) = var.Q_rho_i*vec(1:n);
             z1_c(n+1:n+m,1) = var.R_rho_i*vec(n+1:n+m);
-            z1_c(n+m+1:n+m+n) = var.rho_i*vec(n+m+1:n+m+n);
+            z1_c(n+m+1:n+m+n) = var.Q_rho_i*vec(n+m+1:n+m+n);
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z1_c(i:i+n-1,1) = var.Q_rho_i*vec(i:i+n-1);
             end
@@ -286,7 +286,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         else
             z1_c(1:n,1) = var.Q_rho_i(:,:,1)*vec(1:n);
             z1_c(n+1:n+m,1) = var.R_rho_i(:,:,1)*vec(n+1:n+m);
-            z1_c(n+m+1:n+m+n) = diag(var.rho_i(n+m+1:n+m+n,1))*vec(n+m+1:n+m+n); % OK
+            z1_c(n+m+1:n+m+n) = var.Q_rho_i(:,:,2)*vec(n+m+1:n+m+n); % OK
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z1_c(i:i+n-1,1) = var.Q_rho_i(:,:,(i-n-1)/(n+m)+1)*vec(i:i+n-1);
             end
@@ -308,7 +308,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         if isscalar(var.rho)
             z3_c(1:n,1) = var.Q_rho_i*vec(1:n);
             z3_c(n+1:n+m,1) = var.R_rho_i*vec(n+1:n+m);
-            z3_c(n+m+1:n+m+n) = var.rho_i*vec(n+m+1:n+m+n);
+            z3_c(n+m+1:n+m+n) = var.Q_rho_i*vec(n+m+1:n+m+n);
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z3_c(i:i+n-1,1) = var.Q_rho_i*vec(i:i+n-1);
             end
@@ -318,7 +318,7 @@ function [u, k, e_flag, Hist] = spcies_MPCT_x1_free_solver(x0, xr, ur, varargin)
         else
             z3_c(1:n,1) = var.Q_rho_i(:,:,1)*vec(1:n);
             z3_c(n+1:n+m,1) = var.R_rho_i(:,:,1)*vec(n+1:n+m);
-            z3_c(n+m+1:n+m+n) = diag(var.rho_i(n+m+1:n+m+n,1))*vec(n+m+1:n+m+n); % OK
+            z3_c(n+m+1:n+m+n) = var.Q_rho_i(:,:,2)*vec(n+m+1:n+m+n); % OK
             for i = n+m+n+1:n+m:(N+1)*n+N*m
                 z3_c(i:i+n-1,1) = var.Q_rho_i(:,:,(i-n-1)/(n+m)+1)*vec(i:i+n-1);
             end
