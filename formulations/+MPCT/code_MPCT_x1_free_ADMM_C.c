@@ -318,7 +318,7 @@
             
             for(unsigned int j = 0 ; j < nn_ ; j++){
 
-                v[i] -= Q_rho_i[i][j] * z2[j];
+                v[i] -= Q[i][j] * z2[j];
 
             }
 
@@ -329,7 +329,7 @@
 
             for(unsigned int j = nn_ ; j < nm_ ; j++){
 
-                v[i] -= R_rho_i[i-nn_][j-nn_] * z2[j];
+                v[i] -= R[i-nn_][j-nn_] * z2[j];
 
             }
 
@@ -340,7 +340,7 @@
             
             for(unsigned int j = 0 ; j < nn_ ; j++){
 
-                v[i] -= Q_rho_i[i-nm_][j] * z2[j];
+                v[i] -= Q[i-nm_][j] * z2[j];
 
             }
 
@@ -353,7 +353,7 @@
 
                 for (unsigned int j = 0 ; j < nn_ ; j++){
 
-                    v[i] -= Q_rho_i[i-l*nm_-nn_][j] * z2[j];
+                    v[i] -= Q[i-l*nm_-nn_][j] * z2[j];
 
                 }
 
@@ -363,7 +363,7 @@
 
                 for (unsigned int j = 0 ; j < mm_ ; j++){
 
-                    v[i] -= R_rho_i[i-l*nm_-2*nn_][j] * z2[j+nn_];
+                    v[i] -= R[i-l*nm_-2*nn_][j] * z2[j+nn_];
 
                 }
 
@@ -615,11 +615,33 @@
 
         for (unsigned int i = nm_ ; i < nm_+nn_ ; i++){
 
-            p[i] = -(p[i]+mu[i-mm_]);
+            p[i] = -(p[i]-mu[i-mm_]);
 
-        } 
+        }
 
-        for (unsigned int l = 2 ; l <= NN_ ; l++){
+        for (unsigned int i = nm_+nn_ ; i < 3*nn_+mm_ ; i++){
+
+            for (unsigned int j = 0 ; j < nn_ ; j++){
+
+                p[i] -= A[j][i-nm_-nn_] * mu[2*nn_+j];
+
+            }
+
+        }
+
+        for (unsigned int i = 2*nm_+nn_-mm_ ; i < 2*nm_ + nn_ ; i++){
+
+            for (unsigned int j = 0 ; j < nn_ ; j++){
+
+                p[i] += B[j][i-2*nm_-nn_+mm_] * mu[2*nn_+j];
+
+            }
+
+            p[i] = -p[i];
+
+        }
+
+        for (unsigned int l = 3 ; l <= NN_ ; l++){
 
             for (unsigned int i = (l-1)*nm_+nn_ ; i < (l+1)*nn_+(l-1)*mm_ ; i++){
 
@@ -852,7 +874,7 @@
             
             for(unsigned int j = 0 ; j < nn_ ; j++){
 
-                v[i] -= Q_rho_i[i][j] * z2[j];
+                v[i] -= Q[i][j] * z2[j];
 
             }
 
@@ -863,7 +885,7 @@
 
             for(unsigned int j = nn_ ; j < nm_ ; j++){
 
-                v[i] -= R_rho_i[i-nn_][j-nn_] * z2[j];
+                v[i] -= R[i-nn_][j-nn_] * z2[j];
 
             }
 
@@ -874,7 +896,7 @@
             
             for(unsigned int j = 0 ; j < nn_ ; j++){
 
-                v[i] -= Q_rho_i[i-nm_][j] * z2[j];
+                v[i] -= Q[i-nm_][j] * z2[j];
 
             }
 
@@ -887,7 +909,7 @@
 
                 for (unsigned int j = 0 ; j < nn_ ; j++){
 
-                    v[i] -= Q_rho_i[i-l*nm_-nn_][j] * z2[j];
+                    v[i] -= Q[i-l*nm_-nn_][j] * z2[j];
 
                 }
 
@@ -897,7 +919,7 @@
 
                 for (unsigned int j = 0 ; j < mm_ ; j++){
 
-                    v[i] -= R_rho_i[i-l*nm_-2*nn_][j] * z2[j+nn_];
+                    v[i] -= R[i-l*nm_-2*nn_][j] * z2[j+nn_];
 
                 }
 
