@@ -124,7 +124,15 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     
     Gamma_tilde = G*Gamma_hat_inv*G';
 
-    U_tilde = -G*Gamma_hat_inv*U_hat*inv(eye(2*(n+m))+V_hat*Gamma_hat_inv*U_hat);
+    U_tilde_full = -G*Gamma_hat_inv*U_hat*inv(eye(2*(n+m))+V_hat*Gamma_hat_inv*U_hat);
+
+    if vars.rho_is_scalar
+        U_tilde_ini = [U_tilde_full(1:n,1:n), U_tilde_full(1:n,n+m+1:2*n+m)];
+        U_tilde_mid = U_tilde_full(n+1:2*n,:);
+        U_tilde_final = U_tilde_full(N*n+1:(N+2)*n,:);
+    else
+        U_tilde = U_tilde_full;
+    end
 
     V_tilde = V_hat*Gamma_hat_inv*G';
 
@@ -140,11 +148,11 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     M_hat_u1 = [M_hat(n+1:n+m,n+1:n+m) ; M_hat(2*n+m+1:2*(n+m),n+1:n+m)];
     M_hat_u2 = [M_hat(n+1:n+m,N*(n+m)+2*n+1:(N+1)*(n+m)+n) ; M_hat(2*n+m+1:2*(n+m),N*(n+m)+2*n+1:(N+1)*(n+m)+n)];
 
-    M_tilde_full = inv(eye(size(V_tilde,1),size(U_tilde,2))+V_tilde*inv(Gamma_tilde)*U_tilde)*V_tilde;
+    M_tilde_full = inv(eye(size(V_tilde,1),size(U_tilde_full,2))+V_tilde*inv(Gamma_tilde)*U_tilde_full)*V_tilde;
 
     % Only for C version of the solver. In Matlab, we use M_tilde_full
     if vars.rho_is_scalar
-        M_tilde = [M_tilde_full(:,1:3*n), M_tilde_full(:,N*n+1:(N+2)*n)]; % For C, we only save once the repeated part of the matrix
+        M_tilde = [M_tilde_full(:,1:2*n), M_tilde_full(:,N*n+1:(N+2)*n)]; % For C, we only save once the repeated part of the matrix
     else
         M_tilde = M_tilde_full;
     end
@@ -169,7 +177,14 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
     vars.G = G;
     vars.U_hat = U_hat;
     vars.Gamma_tilde = Gamma_tilde; % Only needed for solver in Matlab. In C, Alpha's and Beta's are used
-    vars.U_tilde = U_tilde;
+    vars.U_tilde_full = U_tilde_full;
+    if vars.rho_is_scalar
+        vars.U_tilde_ini = U_tilde_ini;
+        vars.U_tilde_mid = U_tilde_mid;
+        vars.U_tilde_final = U_tilde_final;
+    else
+        vars.U_tilde = U_tilde;
+    end
     vars.M_hat = M_hat;
     vars.M_hat_x1 = M_hat_x1;
     vars.M_hat_x2 = M_hat_x2;
