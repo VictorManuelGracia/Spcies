@@ -1197,7 +1197,6 @@
 
 }
 
-// TODO: Check if the case of rho vector is correct
 #ifdef SCALAR_RHO
 void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_], const double (*R_rho_i)[mm_], const double (*S_rho_i)[mm_], const double (*T_rho_i)[nn_], double *z, double *d){
 
@@ -1323,7 +1322,7 @@ void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_][nn_], const double (*R_r
             
             for (unsigned int k = 0 ; k < nn_ ; k++){ // Multiplying the rows by the corresponding part of the independent term vector
                 
-                z[i*nm_+j] += Q_rho_i[i+1][j][k] * d[i*nm_+k];
+                z[i*nm_+nn_+j] += Q_rho_i[i+1][j][k] * d[i*nm_+nn_+k];
 
             }
 
@@ -1333,7 +1332,7 @@ void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_][nn_], const double (*R_r
 
             for (unsigned int k = 0 ; k < mm_ ; k++){
 
-                z[i*nm_+j] += R_rho_i[i][j-nn_][k] * d[i*nm_+nn_+k];
+                z[i*nm_+nn_+j] += R_rho_i[i][j-nn_][k] * d[i*nm_+nn_+nn_+k];
 
             }
 
