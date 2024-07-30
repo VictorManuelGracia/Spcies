@@ -1345,7 +1345,7 @@ void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_][nn_], const double (*R_r
 
         for (unsigned int k = 0 ; k < nn_ ; k++){
 
-            z[NN_*nm_ + j] += T_rho_i[j][k] * d[NN_*nm_ + k];
+            z[NN_*nm_ + nn_ + j] += T_rho_i[j][k] * d[NN_*nm_ + nn_ + k];
 
         }
         
@@ -1355,7 +1355,7 @@ void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_][nn_], const double (*R_r
 
         for (unsigned int k = 0 ; k < mm_ ; k++){
 
-            z[NN_*nm_ + j] += S_rho_i[j-nn_][k] * d[NN_*nm_ + nn_ + k];
+            z[NN_*nm_ + nn_ + j] += S_rho_i[j-nn_][k] * d[NN_*nm_ + nn_ + nn_ + k];
 
         }
 
