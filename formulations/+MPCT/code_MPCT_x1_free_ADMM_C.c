@@ -56,6 +56,8 @@
     double res_primal_feas; // Variable used to determine if primal feasibility is satisfied
     unsigned int res_flag = 0; // Flag used to determine if the exit condition is satisfied
 
+    // TODO: Make that only the diagonals of weight matrices are declared when they are diagonal, instead of the whole weight matrices. Same for Q_rho_i, R_rho, S_rho and T_rho_i.
+
     // Constant variables
     $INSERT_CONSTANTS$
 
@@ -310,6 +312,8 @@
         memset(v, 0, sizeof(double)*((NN_+1)*nm_+nn_));
 
         // (U_hat * z2_a) computed sparsely, stored in v to save memory
+
+        // TODO: Make a different case for IS_DIAG == true, meaning that weights are diagonal. Many operations can be avoided in that case.
 
         // First nn_ rows
         for(unsigned int i = 0 ; i < nn_ ; i++){
