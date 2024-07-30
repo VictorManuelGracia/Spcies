@@ -95,7 +95,7 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
         Gamma_hat = blkdiag(Gamma_hat,blkdiag(Q,R));
     end
     Gamma_hat = blkdiag(Gamma_hat,blkdiag((N+1)*Q+T,N*R+S));
-    Gamma_hat = Gamma_hat + rho*eye(size(Gamma_hat,1)); % Band of the Hessian of the problem of z^{k+1} constructed
+    Gamma_hat = Gamma_hat + diag(rho)*eye(size(Gamma_hat,1)); % Band of the Hessian of the problem of z^{k+1} constructed
 
     Gamma_hat_inv = inv(Gamma_hat);
     
@@ -206,19 +206,20 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
         vars.beta_rho_i = beta/(2*rho);
     else
         vars.rho_i = 1./rho;
-        vars.Q_rho_i = zeros(n,n,N);
+        vars.Q_rho_i = zeros(n,n,N+1);
         vars.R_rho_i = zeros(m,m,N);
 
         vars.Q_rho_i(:,:,1) = Gamma_hat_inv(1:n,1:n);
         vars.R_rho_i(:,:,1) = Gamma_hat_inv(n+1:n+m,n+1:n+m);
+        vars.Q_rho_i(:,:,2) = Gamma_hat_inv(n+m+1:n+m+n,n+m+1:n+m+n);
 
-        for i = 2:N
-            vars.Q_rho_i(:,:,i) = Gamma_hat_inv(n+(i-1)*(n+m)+1:n+(i-1)*(n+m)+n,n+(i-1)*(n+m)+1:n+(i-1)*(n+m)+n);
-            vars.R_rho_i(:,:,i) = Gamma_hat_inv(n+(i-1)*(n+m)+n+1:n+(i-1)*(n+m)+n+m,n+(i-1)*(n+m)+n+1:n+(i-1)*(n+m)+n+m);
+        for i = 3:N+1
+            vars.Q_rho_i(:,:,i) = Gamma_hat_inv(n+(i-2)*(n+m)+1:n+(i-2)*(n+m)+n,n+(i-2)*(n+m)+1:n+(i-2)*(n+m)+n);
+            vars.R_rho_i(:,:,i-1) = Gamma_hat_inv(n+(i-2)*(n+m)+n+1:n+(i-2)*(n+m)+n+m,n+(i-2)*(n+m)+n+1:n+(i-2)*(n+m)+n+m);
         end
 
         vars.T_rho_i = Gamma_hat_inv(n+N*(n+m)+1:n+N*(n+m)+n,n+N*(n+m)+1:n+N*(n+m)+n);
-        vars.S_rho_i = Gamma_hat_inv(n+N*(n+m)+n+1:n+N*(n+m)+n+m);
+        vars.S_rho_i = Gamma_hat_inv(n+N*(n+m)+n+1:n+N*(n+m)+n+m,n+N*(n+m)+n+1:n+N*(n+m)+n+m);
 
         vars.alpha_rho_i = alpha./(2*rho);
         vars.beta_rho_i = beta./(2*rho);
