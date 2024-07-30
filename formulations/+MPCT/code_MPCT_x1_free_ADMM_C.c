@@ -122,7 +122,7 @@
         //********** Equality-constrained QP solve **********//
         // This problem updates z
 
-        for (unsigned int i = 0 ; i < (NN_+1)*nm_+mm_ ; i++){
+        for (unsigned int i = 0 ; i < (NN_+1)*nm_+nn_ ; i++){
 
             #ifdef SCALAR_RHO
             p[i] = lambda[i] - rho * v[i];
@@ -141,7 +141,7 @@
         // Compute xi from P*xi=p using semi-band algorithm, where P = H + rho*I = Gamma_hat + U_hat*V_hat 
         
         // Obtains z1_a, stored in xi to save memory
-        solve_banded_QRST_sys(Q_rho_i, R_rho_i, S_rho_i, T_rho_i, xi, p); 
+        solve_banded_QRST_sys(Q_rho_i, R_rho_i, S_rho_i, T_rho_i, xi, p);
 
         // z2_a = M_hat * z1_a computed sparsely
 
@@ -307,8 +307,6 @@
 
         } // End of computation of z2_a
 
-        // Creo que hasta aquí OK
-
         memset(v, 0, sizeof(double)*((NN_+1)*nm_+nn_));
 
         // (U_hat * z2_a) computed sparsely, stored in v to save memory
@@ -376,7 +374,7 @@
 
             v[i] = z2[i-(NN_-1)*nm_-nn_];
 
-        } // OK
+        }
         // End of computation of (U_hat * z2_a), stored in v
 
         solve_banded_QRST_sys(Q_rho_i, R_rho_i, S_rho_i, T_rho_i, z3_ac, v); // Obtains z3_a, stored in z3_ac
@@ -461,7 +459,7 @@
 
             }
 
-        } // Hasta aquí creo que OK
+        }
         // End of computation of -(G*xi+b), stored in mu.
 
         solve_banded_Chol(Alpha, Beta, mu); // Obtains z1_b. We use mu to store the result. Note that mu contained the independent term vector -(G*xi+b) before calling this function.
@@ -623,9 +621,11 @@
 
             for (unsigned int j = 0 ; j < nn_ ; j++){
 
-                p[i] -= A[j][i-nm_-nn_] * mu[2*nn_+j];
+                p[i] += A[j][i-nm_-nn_] * mu[2*nn_+j];
 
             }
+
+            p[i] = -p[i];
 
         }
 
@@ -691,7 +691,7 @@
 
             p[i] = -p[i];
 
-        } //OK
+        }
         
         // End of computation of -(G'*mu+p), which is stored in p.
 
@@ -932,7 +932,7 @@
 
             v[i] = z2[i-(NN_-1)*nm_-nn_];
 
-        } // OK
+        }
         // End of computation of (U_hat * z2_c), stored in v
 
         memset(z3_ac, 0, sizeof(double)*((NN_+1)*nm_+nn_));
@@ -1117,7 +1117,7 @@
 
  }
 
-//FIXME: REVIEW THE METHOD: This function is copyied from the MPCT semiband algorithm. It looks fine even with the inclusion of the new x_1. However, there is one Alpha=0, so we can avoid those operations
+//FIXME: There is one Alpha=0, so we can avoid those operations
  void solve_banded_Chol(const double (*Alpha)[nn_][nn_], const double (*Beta)[nn_][nn_], double *d){
 
     // We are using the independent term vector "d" to return the solution vector "z" so as to save memory
@@ -1197,7 +1197,7 @@
 
 }
 
-// La función que viene ahora creo que está OK, tanto para rho escalar como vector
+// TODO: Check if the case of rho vector is correct
 #ifdef SCALAR_RHO
 void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_], const double (*R_rho_i)[mm_], const double (*S_rho_i)[mm_], const double (*T_rho_i)[nn_], double *z, double *d){
 
