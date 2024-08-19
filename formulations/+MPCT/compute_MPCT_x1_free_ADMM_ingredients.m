@@ -276,6 +276,13 @@ function [vars] = compute_MPCT_x1_free_ADMM_ingredients(controller, opt)
             vars.Alpha(:,:,(i-1)/n+1) = Gamma_tilde_c(i:i+n-1,i+n:i+2*n-1);
         end
     end
+    
+    % Deleting Alpha(:,:,2), which is always zero
+    for i = 2 : n_Alpha-1
+        vars.Alpha(:,:,i) = vars.Alpha(:,:,i+1);
+    end
+
+    vars.Alpha = vars.Alpha(:,:,1:end-1);
 
     % Passing the inverse of the diagonal of Beta's so that we multiply by them instead
     % of dividing. Used in solve_banded_Chol() function in C

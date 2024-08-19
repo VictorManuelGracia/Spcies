@@ -576,7 +576,7 @@
         #endif
         // End of computation of (U_tilde*z2_b)
 
-        solve_banded_Chol(Alpha, Beta, v); // Obtains z3_b, which is stored in v to save memory. TODO: In this case, there is one Alpha which is 0, so we can avoid operations and memory storage
+        solve_banded_Chol(Alpha, Beta, v); // Obtains z3_b, which is stored in v to save memory.
 
         // Computation of mu
         for (unsigned int i = 0 ; i < (NN_+2)*nn_ ; i++){ 
@@ -1121,7 +1121,6 @@
 
  }
 
-//FIXME: There is one Alpha=0, so we can avoid those operations
  void solve_banded_Chol(const double (*Alpha)[nn_][nn_], const double (*Beta)[nn_][nn_], double *d){
 
     // We are using the independent term vector "d" to return the solution vector "z" so as to save memory
@@ -1140,7 +1139,39 @@
 
     }
 
-    for (unsigned int k=1 ; k < NN_+2 ; k++){
+    for (unsigned int i = 0 ; i < nn_ ; i++){
+
+        for(unsigned int p = 0 ; p < i ; p++){
+
+            d[nn_+i] -= Beta[1][p][i] * d[nn_+p]; 
+        
+        }
+
+        for(unsigned int p = 0; p < nn_ ; p++){
+
+            d[nn_+i] -= Alpha[0][p][i] * d[p];
+
+        }
+        
+        d[nn_+i] *= Beta[1][i][i]; // This is a division by the diagonal of Beta, but the diagonal of Beta is inverted, so we multiply instead by the diagonal inverted
+
+    }
+
+    // Skipping the Alpha which is equal to 0
+    for (unsigned int i = 0 ; i < nn_ ; i++){
+
+        for(unsigned int p = 0 ; p < i ; p++){
+
+            d[(2)*nn_+i] -= Beta[2][p][i] * d[(2)*nn_+p]; 
+        
+        }
+        
+        d[(2)*nn_+i] *= Beta[2][i][i]; // This is a division by the diagonal of Beta, but the diagonal of Beta is inverted, so we multiply instead by the diagonal inverted
+
+    }
+
+    // Continue with the rest of Alpha's and Beta's once the Alpha equal to 0 is skipped
+    for (unsigned int k=3 ; k < NN_+2 ; k++){
         
         for (unsigned int i = 0 ; i < nn_ ; i++){
 
@@ -1152,7 +1183,7 @@
 
             for(unsigned int p = 0; p < nn_ ; p++){
 
-                d[(k)*nn_+i] -= Alpha[k-1][p][i] * d[(k-1)*nn_+p];
+                d[(k)*nn_+i] -= Alpha[k-2][p][i] * d[(k-1)*nn_+p];
 
             }
             
@@ -1176,7 +1207,7 @@
 
     }
 
-    for (unsigned int k = NN_+1 ; k > 0 ; k--){
+    for (unsigned int k = NN_+1 ; k > 2 ; k--){
 
         for(unsigned int i = nn_ ; i > 0 ; i--){
 
@@ -1188,7 +1219,7 @@
                 
             for(unsigned int p = 0 ; p < nn_ ; p++){
             
-                d[(k-1)*nn_+i-1] -= Alpha[k-1][i-1][p] * d[(k)*nn_+p];
+                d[(k-1)*nn_+i-1] -= Alpha[k-2][i-1][p] * d[(k)*nn_+p];
             
             }
 
@@ -1197,6 +1228,39 @@
         }
 
     }
+
+    // Skipping the Alpha which is equal to 0
+    for(unsigned int i = nn_ ; i > 0 ; i--){
+
+        for(unsigned int p = i+1 ; p <= nn_ ; p++){
+
+            d[nn_+i-1] -= Beta[1][i-1][p-1] * d[nn_+(p-1)];
+
+        }
+
+        d[nn_+i-1] *= Beta[1][i-1][i-1]; // This is a division by the diagonal of Beta, but the diagonal of Beta is inverted, so we multiply instead by the diagonal inverted
+
+    }
+
+    // Continue with the rest of Alpha's and Beta's once the Alpha equal to 0 is skipped
+    for(unsigned int i = nn_ ; i > 0 ; i--){
+
+        for(unsigned int p = i+1 ; p <= nn_ ; p++){
+
+            d[i-1] -= Beta[0][i-1][p-1] * d[(p-1)];
+
+        }
+            
+        for(unsigned int p = 0 ; p < nn_ ; p++){
+        
+            d[i-1] -= Alpha[0][i-1][p] * d[nn_+p];
+        
+        }
+
+        d[i-1] *= Beta[0][i-1][i-1]; // This is a division by the diagonal of Beta, but the diagonal of Beta is inverted, so we multiply instead by the diagonal inverted
+
+    }
+
     
 
 }
