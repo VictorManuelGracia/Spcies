@@ -1265,6 +1265,7 @@
 
 }
 
+// TODO: Create a new case when IS_DIAG is equal to 1.
 #ifdef SCALAR_RHO
 void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_], const double (*R_rho_i)[mm_], const double (*S_rho_i)[mm_], const double (*T_rho_i)[nn_], double *z, double *d){
 

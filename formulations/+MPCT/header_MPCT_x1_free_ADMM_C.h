@@ -23,6 +23,7 @@ typedef struct {
 
 void MPCT_x1_free_ADMM(double *x0_in, double *xr_in, double *ur_in, double *u_opt, int *k_in, int *e_flag, sol_$INSERT_NAME$ *sol);
 
+// TODO: Create the case when IS_DIAG is equal to 1, meaning that Q, R, S and T are diagonal matrices. Many operations can be avoided in that case.
 #ifdef SCALAR_RHO
 void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_], const double (*R_rho_i)[mm_], const double (*S_rho_i)[mm_], const double (*T_rho_i)[nn_], double *z, double *d);
 #else

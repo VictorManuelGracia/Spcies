@@ -67,6 +67,8 @@ void MPCT_ADMM_semiband(double *x0_in, double *xr_in, double *ur_in, double *u_o
     // Constant variables
     $INSERT_CONSTANTS$
 
+    // TODO: Create the case when Q, R, S and T are diagonal matrices. Many operations can be avoided, and we only need to declare vectors with the diagonals.
+
     // Obtain variables in scaled units
     #if in_engineering == 1
     for(unsigned int i = 0; i < nn_; i++){
@@ -1266,6 +1268,8 @@ void solve_banded_Chol(const double (*Alpha)[nn_][nn_], const double (*Beta)[nn_
     
 
 }
+
+// TODO: Create the case when Q, R, S and T are diagonal matrices. Many operations can be avoided.
 
 #ifdef SCALAR_RHO
 void solve_banded_QRST_sys(const double (*Q_rho_i)[nn_], const double (*R_rho_i)[mm_], const double (*S_rho_i)[mm_], const double (*T_rho_i)[nn_], double *z, double *d){
