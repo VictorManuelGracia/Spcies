@@ -20,6 +20,8 @@
 %   - x0: Current system state
 %   - xr: State reference
 %   - ur: Input reference
+%   - v_ini: Initial value for v (warmstart)
+%   - lambda_ini: Initial value for lambda (warmstart)
 %
 % NAME-VALUE INPUTS (optional):
 %   - sys: State space model of the system. It should either be an
@@ -96,7 +98,7 @@
 
 % TODO: Change beta from option to necessary input of the solver when options.solver.soft_constraints == true and make it deal with beta being a vector.
 
-function [u, k, e_flag, Hist] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, varargin)
+function [u, k, e_flag, Hist] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, v_ini, lambda_ini, varargin)
     import MPCT.compute_MPCT_ADMM_semiband_ingredients
 
     %% Default values
@@ -166,13 +168,17 @@ function [u, k, e_flag, Hist] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, var
     k = 0;
     z = zeros((N+1)*(n+m),1);
     if ~options.solver.constrained_output
-        v = zeros((N+1)*(n+m),1);
+        % v = zeros((N+1)*(n+m),1);
+        v = v_ini;
         v_old = zeros((N+1)*(n+m),1); % Value of v in the previous iteration
-        lambda = zeros((N+1)*(n+m),1);
+        % lambda = zeros((N+1)*(n+m),1);
+        lambda = lambda_ini;
     else
-        v = zeros((N+1)*(n+m+pp),1);
+        % v = zeros((N+1)*(n+m+pp),1);
+        v = v_ini;
         v_old = zeros((N+1)*(n+m+pp),1); % Value of v in the previous iteration
-        lambda = zeros((N+1)*(n+m+pp),1);
+        % lambda = zeros((N+1)*(n+m+pp),1);
+        lambda = lambda_ini;
     end
 
     % Historics
