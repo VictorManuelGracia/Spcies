@@ -98,7 +98,7 @@
 
 % TODO: Change beta from option to necessary input of the solver when options.solver.soft_constraints == true and make it deal with beta being a vector.
 
-function [u, k, e_flag, Hist] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, v_ini, lambda_ini, varargin)
+function [u, k, e_flag, Hist, v_next_before_sat] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, v_ini, lambda_ini, varargin)
     import MPCT.compute_MPCT_ADMM_semiband_ingredients
 
     %% Default values
@@ -373,6 +373,8 @@ function [u, k, e_flag, Hist] = spcies_MPCT_ADMM_semiband_solver(x0, xr, ur, v_i
                 v = var.rho_i.*lambda + var.C_tilde*z;
             end
         end
+
+        v_next_before_sat = v; % We get the value of v before saturation and return the last value it takes for warmstart at next sample time
         
         % Obtaining v^{k+1}
 
