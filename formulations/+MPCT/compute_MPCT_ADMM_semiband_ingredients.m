@@ -241,6 +241,7 @@ function [vars] = compute_MPCT_ADMM_semiband_ingredients(controller, opt)
     if opt.solver.constrained_output == true
         vars.p = p; % Dimension of constrained output
     end
+    vars.P = (Gamma_hat + U_hat*V_hat);
     vars.A = A;
     vars.B = B;
     vars.Q = Q;
