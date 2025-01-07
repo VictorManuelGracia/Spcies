@@ -72,7 +72,7 @@
 % This function is part of Spcies: https://github.com/GepocUS/Spcies
 % 
 
-function [u, k, e_flag, Hist] = spcies_laxMPC_ADMM_solver(x0, xr, ur, varargin)
+function [u, k, e_flag, Hist] = spcies_laxMPC_ADMM_solver(x0, xr, ur, v_ini, lambda_ini, varargin)
     
     %% Default options
     def_sys = []; % Default value for the sys argument
@@ -192,6 +192,7 @@ function [u, k, e_flag, Hist] = spcies_laxMPC_ADMM_solver(x0, xr, ur, varargin)
     Hinv = inv(H_rho);
     W = Aeq*Hinv*Aeq';
     
+    
     % Compute the constraints
     if min(size(LBx)) == 1
         LB = [LBu; kron(ones(N-1,1), [LBx; LBu]); LBx]; 
@@ -245,9 +246,11 @@ function [u, k, e_flag, Hist] = spcies_laxMPC_ADMM_solver(x0, xr, ur, varargin)
     done = false;
     k = 0;
     z = zeros(N*(n+m), 1);
-    v = zeros(N*(n+m), 1);
+    %v = zeros(N*(n+m), 1);
+    v = v_ini;
     v1 = v; % Value of z in the previous iteration
-    lambda = zeros(N*(n+m), 1);
+    % lambda = zeros(N*(n+m), 1);
+    lambda = lambda_ini;
     
     % Historics
     if genHist > 0

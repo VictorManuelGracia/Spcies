@@ -384,8 +384,39 @@ function [u, k, e_flag, Hist, v_next_before_sat] = spcies_MPCT_ADMM_semiband_sol
         end
         
         % u_0 is hard-constrained in both hard and soft versions of the solver
-        for i = n+1:n+m
-            v(i) = min(max(v(i),var.LB(i)),var.UB(i));
+        if ~options.solver.soft_constraints
+            for i = n+1:n+m
+                v(i) = min(max(v(i),var.LB(i)),var.UB(i));
+            end
+        else
+        % Soft constraints in u_0 just for warmstart purposes
+
+            for i = n+1 : n+m
+                            
+                if isscalar(var.rho)
+                    v1 = v(i) + var.beta_rho_i;
+                    v2 = v(i);
+                    v3 = v(i) - var.beta_rho_i;
+                else
+                    v1 = v(i) + var.beta_rho_i(i);
+                    v2 = v(i);
+                    v3 = v(i) - var.beta_rho_i(i);
+                end
+    
+                if (v1 <= var.LB(i))
+                    v(i) = v1;
+                elseif (v2 >= var.LB(i) && v2 <= var.UB(i))
+                    v(i) = v2;
+                elseif (v3 >= var.UB(i))
+                    v(i) = v3;
+                elseif (v2 > var.UB(i))
+                    v(i) = var.UB(i);
+                elseif (v2 < var.LB(i))
+                    v(i) = var.LB(i);
+                end
+    
+            end
+
         end
 
         if ~options.solver.constrained_output

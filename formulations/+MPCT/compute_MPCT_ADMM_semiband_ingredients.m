@@ -361,6 +361,10 @@ function [vars] = compute_MPCT_ADMM_semiband_ingredients(controller, opt)
     for i = 1 : n 
         vars.Beta(i,i,:) = 1/vars.Beta(i,i,:);
     end
+
+    ingredients = vars;
+
+    save("ingredients_N_" + string(vars.N),"ingredients");
     
 end
 
